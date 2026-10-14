@@ -2,7 +2,9 @@
 
 **Página publicada: https://rvrsaec.github.io/thse-formulario-sheets/**
 
-Página de práctica para una capacitación de Google Sheets, con la temática de THSE Recorder. Es una página de solicitud de acceso: cada envío del formulario se guarda como una fila nueva en una hoja de Google Sheets, usando **Google Apps Script** como API intermedia (sin servidor propio y sin claves en el navegador).
+Landing de THSE Recorder para la fase de lanzamiento: presentación, **planes de suscripción**, tabla comparativa, preguntas frecuentes y formulario de acceso anticipado. Nació como práctica de una capacitación de Google Sheets: cada envío del formulario se guarda como una fila nueva en una hoja, usando **Google Apps Script** como API intermedia (sin servidor propio y sin claves en el navegador).
+
+> Mientras el repositorio sea privado, GitHub Pages no publica la página (en una cuenta gratuita solo publica repositorios públicos). Se puede abrir `index.html` con doble clic.
 
 ```
 Navegador (index.html)  ──POST──▶  Apps Script (/exec)  ──▶  Google Sheets
@@ -15,11 +17,26 @@ Navegador (index.html)  ──POST──▶  Apps Script (/exec)  ──▶  Goo
 | `index.html` | La página completa: estilos, formulario y código en un solo archivo. Arriba del `<script>` está `SCRIPT_URL`, donde pegas la URL de tu Apps Script |
 | `apps-script/Code.gs` | Recibe los datos y escribe en la hoja |
 
+## Planes de suscripción
+
+Cuatro niveles; cada uno suma lo anterior. Basados en las funciones ya implementadas en THSE Recorder Internal v1 y en el borrador comercial de `docs/ROADMAP.md` (repositorio de la app). Precios de referencia en USD.
+
+| Nivel | Para quién | Anual | Licencia única | Lo principal |
+|---|---|---|---|---|
+| **Gratis** | Probar con los primeros registros | $0 | $0 | 10 registros · 720p · formatos Original, 16:9, 9:16 · Looks None y Cinematic · FLD e INT · ficha TXT · línea «RECORDED WITH THSE» en el HUD · papelera 3 días · 1 equipo |
+| **Personal** (recomendado) | Creadores y documentación de procesos | $24 | $34 | Sin marca · registros ilimitados · 1080p · 7 formatos · fondo difuminado y barras · los 5 Looks · los 4 tipos de archivo · ficha PDF/TXT/JSON · plantillas · papelera 14 días · 3 equipos |
+| **Pro** | Profesionales con respaldo documental | $59 | $89 | Tipos de archivo propios · catálogo PDF · acciones en lote · papelera 30 días · 5 equipos · *pronto:* logo propio en el HUD, campos personalizados, huella SHA-256 |
+| **Estudio** (lista de espera) | Equipos, escuelas y laboratorios | $149 | $229 | Hasta 5 personas · licencias para grupos · soporte prioritario · *pronto:* usuarios con biblioteca propia, perfiles de uso, compilar un proyecto |
+
+En todos los planes: proceso local (los videos nunca se suben), registro con código `CODE-AAAAMMDD-NNN`, respaldo JSON con recordatorios y papelera.
+
+Los botones de cada plan llevan al formulario con ese plan ya elegido (campo `plan`). Los precios, límites y nombres se cambian directamente en `index.html` (tarjetas `.plan` y tabla `.compare`).
+
 ## Para participantes
 
 1. Abre **https://rvrsaec.github.io/thse-formulario-sheets/** en el celular o el computador.
 2. Completa el formulario y pulsa **Enviar solicitud**.
-3. Si todo sale bien, aparece en verde **"Solicitud registrada en Google Sheets"** con tu código `ACC-…`, y la fila llega a la hoja del taller.
+3. Si todo sale bien, aparece en verde **"Solicitud registrada"** con tu código `ACC-…`, y la fila llega a la hoja.
 
 ## Cómo se publica la página
 
@@ -78,6 +95,7 @@ El script lee los encabezados de la fila 1 y busca la columna de cada campo por 
 | `email` | Correo | Correo electrónico, E-mail, Mail |
 | `organizacion` | Organización | Empresa, Institución, Proyecto |
 | `rol` | Rol | Cargo, Ocupación, Perfil |
+| `plan` | Plan | Plan de interés, Suscripción |
 | `tipo_registro` | Tipo de registro | Tipo, Registro |
 | `uso` | Uso | ¿Qué te gustaría registrar?, Mensaje, Comentarios |
 | `consentimiento` | Consentimiento | Acepta, Autorización |

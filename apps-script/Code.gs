@@ -24,6 +24,7 @@ var FIELDS = [
   { key: 'email',          header: 'Correo',            aliases: ['correo electronico', 'e-mail', 'mail'] },
   { key: 'organizacion',   header: 'Organización',      aliases: ['organizacion o proyecto', 'empresa', 'institucion', 'proyecto'] },
   { key: 'rol',            header: 'Rol',               aliases: ['cargo', 'ocupacion', 'perfil'] },
+  { key: 'plan',           header: 'Plan',              aliases: ['plan de interes', 'plan que te interesa', 'suscripcion'] },
   { key: 'tipo_registro',  header: 'Tipo de registro',  aliases: ['tipo', 'tipo registro', 'registro'] },
   { key: 'uso',            header: 'Uso',               aliases: ['que te gustaria registrar', 'mensaje', 'comentarios', 'descripcion'] },
   { key: 'consentimiento', header: 'Consentimiento',    aliases: ['acepta', 'autorizacion'] },

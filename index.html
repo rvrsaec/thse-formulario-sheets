@@ -5,13 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>THSE Recorder Acceso</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="THSE Recorder convierte tus videos en registros documentales con HUD, procesados en tu dispositivo. Planes y solicitud de acceso.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
 <style>
-/* Layout: banda superior con un visor HUD como portada; debajo, el formulario en una sola columna centrada. */
+/* Layout: landing de una columna por bandas — portada con visor HUD, principios, planes (4 columnas que bajan a 2 y 1), tabla comparativa, preguntas y formulario. */
 :root {
   --bg: #03080b;
+  --bg-band: #061015;
   --panel: #0b151a;
   --field: #071014;
   --line: rgba(185, 216, 222, 0.17);
@@ -22,11 +24,14 @@
   --accent: #d9a441;
   --accent-soft: rgba(217, 164, 65, 0.12);
   --on-accent: #1a1204;
-  --rec: #ff4a43;
   --ok: #6fd49a;
   --err: #e46c6c;
+  --soon: #77b6d7;
+  --soon-soft: rgba(119, 182, 215, 0.12);
+  /* El visor HUD es oscuro en ambos temas */
   --viewer: #020608;
   --hud: rgba(238, 243, 241, 0.86);
+  --stby: #e1b85a;
   --font-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
   --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "Roboto Mono", Menlo, monospace;
@@ -34,24 +39,26 @@
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --bg: #eef2f2; --panel: #ffffff; --field: #f6f8f8;
+    --bg: #eef2f2; --bg-band: #e4eaea; --panel: #ffffff; --field: #f6f8f8;
     --line: rgba(20, 44, 50, 0.18); --line-soft: rgba(20, 44, 50, 0.09);
     --text: #0e1c20; --text-2: #3f5357; --text-3: #5c6f73;
     --accent: #9a6a10; --accent-soft: rgba(154, 106, 16, 0.10); --on-accent: #ffffff;
-    --rec: #d0302a; --ok: #1e7a45; --err: #b3261e;
+    --ok: #1e7a45; --err: #b3261e; --soon: #2a6f93; --soon-soft: rgba(42, 111, 147, 0.10);
     color-scheme: light;
   }
 }
 :root[data-theme="light"] {
-  --bg: #eef2f2; --panel: #ffffff; --field: #f6f8f8;
+  --bg: #eef2f2; --bg-band: #e4eaea; --panel: #ffffff; --field: #f6f8f8;
   --line: rgba(20, 44, 50, 0.18); --line-soft: rgba(20, 44, 50, 0.09);
   --text: #0e1c20; --text-2: #3f5357; --text-3: #5c6f73;
   --accent: #9a6a10; --accent-soft: rgba(154, 106, 16, 0.10); --on-accent: #ffffff;
-  --rec: #d0302a; --ok: #1e7a45; --err: #b3261e;
+  --ok: #1e7a45; --err: #b3261e; --soon: #2a6f93; --soon-soft: rgba(42, 111, 147, 0.10);
   color-scheme: light;
 }
 
 * { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body {
   margin: 0;
   background: var(--bg);
@@ -59,12 +66,14 @@ body {
   font: 400 1rem/1.6 var(--font-body);
 }
 .wrap {
-  max-width: 1080px;
+  max-width: 1120px;
   margin: 0 auto;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-h1, h2 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: 0.01em; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: 0.01em; }
+p { margin: 0; }
+a { color: inherit; }
 .label {
   font: 500 0.72rem/1.4 var(--font-mono);
   letter-spacing: 0.12em;
@@ -72,21 +81,45 @@ h1, h2 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter
   color: var(--text-3);
 }
 code, .mono { font-family: var(--font-mono); }
+.band { border-top: 1px solid var(--line-soft); }
+.band > .wrap { padding-block: 72px; display: flex; flex-direction: column; gap: 36px; }
+.band-alt { background: var(--bg-band); }
+.section-head { display: flex; flex-direction: column; gap: 10px; max-width: 62ch; }
+.section-head h2 { font-size: clamp(1.7rem, 3.6vw, 2.4rem); line-height: 1.1; font-weight: 700; }
+.section-head p { color: var(--text-2); }
+.center { text-align: center; align-items: center; margin-inline: auto; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: 600 0.84rem var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 13px 22px; border: 1px solid var(--accent); border-radius: 6px;
+  background: var(--accent); color: var(--on-accent); cursor: pointer; text-decoration: none;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; color: var(--accent); }
+.btn-ghost:hover { background: var(--accent-soft); filter: none; }
+.btn:disabled { opacity: 0.6; cursor: wait; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Barra superior */
-.top { border-bottom: 1px solid var(--line-soft); }
-.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; }
-.brand { display: flex; align-items: center; gap: 10px; font: 600 0.95rem var(--font-mono); letter-spacing: 0.14em; }
-.brand-mark { width: 22px; height: 22px; border: 1.5px solid var(--accent); border-radius: 4px; display: grid; place-items: center; }
-.brand-mark::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--rec); }
-.stage { font: 500 0.72rem var(--font-mono); letter-spacing: 0.1em; color: var(--accent); border: 1px solid var(--accent); padding: 3px 8px; border-radius: 3px; text-transform: uppercase; }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line-soft); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 600 0.95rem var(--font-mono); letter-spacing: 0.14em; text-decoration: none; }
+.brand-mark { width: 22px; height: 22px; border: 1.5px solid var(--accent); border-radius: 4px; display: grid; place-items: center; flex: none; }
+.brand-mark::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.nav { display: flex; align-items: center; gap: 22px; font: 500 0.78rem var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.nav a { text-decoration: none; color: var(--text-2); }
+.nav a:hover { color: var(--text); }
+.nav .btn { padding: 8px 14px; font-size: 0.74rem; color: var(--on-accent); }
 
-/* Portada con visor HUD */
-.hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; padding-block: 56px 48px; }
-.hero h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.04; font-weight: 700; }
+/* Portada */
+.hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; padding-block: 64px 72px; }
+.hero-copy { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.hero h1 { font-size: clamp(2.2rem, 5.2vw, 3.6rem); line-height: 1.03; font-weight: 700; }
 .hero h1 em { font-style: normal; color: var(--accent); }
-.hero p { color: var(--text-2); max-width: 54ch; margin: 18px 0 0; }
-.hero-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.hero-copy > p { color: var(--text-2); max-width: 54ch; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+.hero-note { font: 500 0.74rem var(--font-mono); letter-spacing: 0.08em; color: var(--text-3); text-transform: uppercase; }
 
 .viewer {
   position: relative;
@@ -112,28 +145,99 @@ code, .mono { font-family: var(--font-mono); }
 .hud-tr { top: 18px; right: 18px; text-align: right; }
 .hud-bl { bottom: 18px; left: 18px; }
 .hud-br { bottom: 18px; right: 44px; text-align: right; }
-.rec { display: inline-flex; align-items: center; gap: 6px; color: #fff; }
-.rec::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #ff4a43; animation: blink 1.2s steps(1) infinite; }
-@keyframes blink { 50% { opacity: 0.2; } }
-@media (prefers-reduced-motion: reduce) { .rec::before { animation: none; } }
 .hud-dim { opacity: 0.7; }
+/* Indicador detenido: amarillo y fijo, para que nadie piense que se está grabando */
+.stby { display: inline-flex; align-items: center; gap: 6px; color: var(--stby); }
+.stby::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--stby); box-shadow: 0 0 6px rgba(225, 184, 90, 0.5); }
 
-/* Contenido principal */
-.main .wrap { padding-block: 8px 56px; }
-.main .panel { max-width: 760px; margin: 0 auto; }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
-.panel h2 { font-size: 1.5rem; font-weight: 600; }
-.panel-head { display: flex; flex-direction: column; gap: 6px; }
-.panel-head p { margin: 0; color: var(--text-2); font-size: 0.94rem; }
+/* Principios */
+.principles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.principle { display: flex; flex-direction: column; gap: 8px; padding: 22px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); min-width: 0; }
+.principle h3 { font-size: 1.15rem; font-weight: 600; }
+.principle p { color: var(--text-2); font-size: 0.94rem; }
+.principle .mono { color: var(--accent); font-size: 0.86rem; }
 
+/* Planes */
+.billing { display: inline-flex; padding: 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); gap: 4px; align-self: center; }
+.billing button {
+  font: 600 0.76rem var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 14px; border: 0; border-radius: 5px; background: transparent; color: var(--text-2); cursor: pointer;
+}
+.billing button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.founder {
+  align-self: center; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center;
+  font-size: 0.9rem; color: var(--text-2); text-align: center;
+}
+.founder b { font: 600 0.74rem var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 3px 8px; border-radius: 4px; }
+
+.plans { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+.plan {
+  position: relative; display: flex; flex-direction: column; gap: 18px;
+  padding: 26px 22px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); min-width: 0;
+}
+.plan.featured { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 18px 40px -24px rgba(217, 164, 65, 0.45); }
+.plan-badge {
+  position: absolute; top: -11px; left: 22px;
+  font: 600 0.68rem var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 4px; background: var(--accent); color: var(--on-accent);
+}
+.plan-badge.soon { background: var(--soon); color: var(--bg); }
+.plan-head { display: flex; flex-direction: column; gap: 6px; }
+.plan-level { font: 500 0.7rem var(--font-mono); letter-spacing: 0.14em; color: var(--text-3); }
+.plan h3 { font-size: 1.5rem; font-weight: 700; }
+.plan-for { color: var(--text-2); font-size: 0.9rem; min-height: 2.9em; }
+.price { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.price-amount { font: 700 2.3rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.price-unit { color: var(--text-3); font-size: 0.86rem; }
+.price-note { font-size: 0.78rem; color: var(--text-3); min-height: 1.3em; margin-top: -10px; }
+.specs { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; padding: 12px 0; border-block: 1px solid var(--line-soft); font: 0.78rem/1.5 var(--font-mono); }
+.specs dt { color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; }
+.specs dd { margin: 0; text-align: right; color: var(--text); font-variant-numeric: tabular-nums; }
+.features { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; font-size: 0.9rem; color: var(--text-2); flex: 1; }
+.features li { display: grid; grid-template-columns: 16px 1fr; gap: 8px; align-items: start; }
+.features li::before { content: ""; width: 9px; height: 5px; margin-top: 7px; border-left: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(-45deg); }
+.features li.inherit { color: var(--text); font-weight: 500; }
+.features li.inherit::before { content: "+"; width: auto; height: auto; margin: 0; border: 0; transform: none; color: var(--accent); font: 600 0.95rem/1.4 var(--font-mono); }
+.soon-tag {
+  display: inline-block; margin-left: 6px; vertical-align: 1px;
+  font: 600 0.62rem var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 1px 6px; border-radius: 3px; color: var(--soon); background: var(--soon-soft);
+}
+.plan .btn { width: 100%; }
+.plans-foot { color: var(--text-3); font-size: 0.84rem; text-align: center; max-width: 70ch; align-self: center; }
+
+/* Tabla comparativa */
+.compare-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.compare { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 0.9rem; }
+.compare th, .compare td { padding: 11px 16px; border-bottom: 1px solid var(--line-soft); text-align: center; }
+.compare th:first-child, .compare td:first-child { text-align: left; color: var(--text-2); }
+.compare thead th { font: 600 0.8rem var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); background: var(--field); position: sticky; top: 0; }
+.compare thead th.featured { color: var(--accent); }
+.compare tbody th { font: 600 0.72rem var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; background: var(--bg-band); text-align: left; }
+.compare td { font-variant-numeric: tabular-nums; }
+.compare .yes { color: var(--ok); font-weight: 600; }
+.compare .no { color: var(--text-3); }
+.compare .soon { color: var(--soon); font: 600 0.7rem var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.compare tr:last-child td { border-bottom: 0; }
+
+/* Preguntas */
+.faq { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.faq details { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 16px 18px; min-width: 0; }
+.faq summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-family: var(--font-mono); color: var(--accent); }
+.faq details[open] summary::after { content: "−"; }
+.faq details p { color: var(--text-2); font-size: 0.93rem; margin-top: 10px; }
+
+/* Formulario */
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 28px; display: flex; flex-direction: column; gap: 18px; min-width: 0; max-width: 760px; width: 100%; margin: 0 auto; }
 .notice { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 6px; padding: 10px 14px; font-size: 0.88rem; color: var(--text); }
 .notice code { color: var(--accent); }
-
 form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
 .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .full { grid-column: 1 / -1; }
-label { font-size: 0.86rem; font-weight: 500; color: var(--text-2); }
-label .req { color: var(--accent); }
+label, legend { font-size: 0.86rem; font-weight: 500; color: var(--text-2); }
+.req { color: var(--accent); }
 input[type="text"], input[type="email"], select, textarea {
   font: inherit; font-size: 0.95rem;
   padding: 10px 12px;
@@ -144,10 +248,10 @@ input[type="text"], input[type="email"], select, textarea {
   width: 100%;
 }
 textarea { resize: vertical; min-height: 92px; }
-input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible {
-  outline: 2px solid var(--accent); outline-offset: 1px;
-}
 .invalid { border-color: var(--err) !important; }
+.highlight { border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(--accent-soft); }
+fieldset { border: 0; padding: 0; margin: 0; }
+legend { margin-bottom: 6px; padding: 0; }
 .types { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .type input { position: absolute; opacity: 0; pointer-events: none; }
 .type span {
@@ -165,29 +269,27 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .check label { font-weight: 400; }
 .check input.invalid { outline: 2px solid var(--err); }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-
 .actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-button {
-  font: 600 0.9rem var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 12px 22px; border: 0; border-radius: 6px;
-  background: var(--accent); color: var(--on-accent); cursor: pointer;
-}
-button:hover { filter: brightness(1.08); }
-button:disabled { opacity: 0.6; cursor: wait; }
-.status { margin: 0; font-size: 0.9rem; min-width: 0; }
+.status { font-size: 0.9rem; min-width: 0; }
 .status.ok { color: var(--ok); }
 .status.err { color: var(--err); }
 .status .mono { color: var(--accent); }
 
-
 footer { border-top: 1px solid var(--line-soft); }
-footer .wrap { padding-block: 18px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--text-3); font-size: 0.82rem; }
+footer .wrap { padding-block: 22px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--text-3); font-size: 0.82rem; }
 
-@media (max-width: 860px) {
-  .hero .wrap { grid-template-columns: 1fr; gap: 28px; }
-  .hero .wrap { padding-block: 36px 32px; }
+@media (max-width: 980px) {
+  .plans { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; }
+  .principles, .faq { grid-template-columns: 1fr; }
 }
-@media (max-width: 480px) {
+@media (max-width: 860px) {
+  .hero .wrap { grid-template-columns: 1fr; gap: 32px; padding-block: 40px 48px; }
+  .nav a:not(.btn) { display: none; }
+  .band > .wrap { padding-block: 52px; }
+}
+@media (max-width: 560px) {
+  .plans { grid-template-columns: 1fr; }
+  .plan-for { min-height: 0; }
   form { grid-template-columns: 1fr; }
   .types { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .panel { padding: 18px; }
@@ -199,36 +301,275 @@ footer .wrap { padding-block: 18px; display: flex; justify-content: space-betwee
 
 <header class="top">
   <div class="wrap">
-    <div class="brand"><span class="brand-mark"></span>THSE RECORDER</div>
-    <span class="stage">Internal v1</span>
+    <a class="brand" href="#inicio"><span class="brand-mark"></span>THSE RECORDER</a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#planes">Planes</a>
+      <a href="#comparar">Comparar</a>
+      <a href="#preguntas">Preguntas</a>
+      <a class="btn" href="#acceso">Pedir acceso</a>
+    </nav>
   </div>
 </header>
 
-<section class="hero">
+<main>
+<section class="hero" id="inicio">
   <div class="wrap">
     <div class="hero-copy">
-      <span class="label">Solicitud de acceso · Programa de pruebas</span>
+      <span class="label">Registro audiovisual local · Internal v1</span>
       <h1>Convierte tus videos en <em>registros documentales</em></h1>
-      <p>THSE Recorder agrega contexto, metadatos y un HUD documental a tus grabaciones, y todo se procesa en tu dispositivo. Déjanos tus datos para sumarte a las pruebas de la versión interna.</p>
+      <p>THSE Recorder agrega contexto, metadatos y un HUD documental a tus grabaciones. Cada video queda en una biblioteca con su ficha, su historial y su código de registro, y todo se procesa en tu dispositivo.</p>
+      <div class="hero-actions">
+        <a class="btn" href="#planes">Ver planes</a>
+        <a class="btn btn-ghost" href="#acceso">Pedir acceso anticipado</a>
+      </div>
+      <span class="hero-note">Chrome o Edge en computador · Tus videos nunca se suben</span>
     </div>
-    <div class="viewer" aria-hidden="true">
-      <div class="hud hud-tl"><span class="rec">REC</span><span class="hud-dim">FLD · FIELD REPORT</span></div>
-      <div class="hud hud-tr"><span id="hud-tc">00:00:00:00</span><span class="hud-dim">25 FPS · 1920×1080</span></div>
-      <div class="hud hud-bl"><span id="hud-id">ACC-00000000-000000</span><span class="hud-dim">SESIÓN 01</span></div>
-      <div class="hud hud-br"><span id="hud-date">—</span><span class="hud-dim">PROCESO LOCAL</span></div>
+    <div class="viewer" role="img" aria-label="Ejemplo del HUD documental de THSE Recorder, en estado detenido">
+      <div class="hud hud-tl"><span class="stby">DETENIDO</span><span class="hud-dim">FLD · FIELD REPORT</span></div>
+      <div class="hud hud-tr"><span>00:00:46:03</span><span class="hud-dim">30 FPS · 1920×1080</span></div>
+      <div class="hud hud-bl"><span id="hud-id">G3N3515-20261014-001</span><span class="hud-dim">SESIÓN 001</span></div>
+      <div class="hud hud-br"><span id="hud-date">14 OCT 2026</span><span class="hud-dim">PROCESO LOCAL</span></div>
     </div>
   </div>
 </section>
 
-<main class="main">
+<section class="band band-alt" aria-labelledby="principios-title">
   <div class="wrap">
-    <section class="panel" aria-labelledby="form-title">
-      <div class="panel-head">
-        <span class="label">Formulario</span>
-        <h2 id="form-title">Pide tu acceso</h2>
-        <p>Los campos con <span style="color:var(--accent)">*</span> son obligatorios.</p>
-      </div>
+    <div class="section-head">
+      <span class="label">Lo que no cambia en ningún plan</span>
+      <h2 id="principios-title">Tu material es tuyo, en todos los planes</h2>
+    </div>
+    <div class="principles">
+      <article class="principle">
+        <span class="mono">PROCESO LOCAL</span>
+        <h3>Tus videos no salen de tu equipo</h3>
+        <p>La exportación corre en tu navegador, con aceleración por GPU cuando está disponible. No hay servidores de video de por medio.</p>
+      </article>
+      <article class="principle">
+        <span class="mono">CODE-AAAAMMDD-NNN</span>
+        <h3>Cada video, un registro</h3>
+        <p>Proyecto, sesión, fecha, hora, lugar, descripción y anotaciones. El registro recibe su código y queda en tu biblioteca con su historial de cambios.</p>
+      </article>
+      <article class="principle">
+        <span class="mono">RESPALDO JSON</span>
+        <h3>Respaldo y papelera siempre incluidos</h3>
+        <p>Exporta tu biblioteca completa con un clic, recibe recordatorios de respaldo y recupera registros borrados desde la papelera.</p>
+      </article>
+    </div>
+  </div>
+</section>
 
+<section class="band" id="planes" aria-labelledby="planes-title">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="label">Planes</span>
+      <h2 id="planes-title">Un plan para cada etapa de tu archivo</h2>
+      <p>Empieza gratis con tus primeros registros. Cada plan suma lo anterior y desbloquea más a medida que tu biblioteca y tu equipo crecen.</p>
+    </div>
+
+    <div class="billing" role="group" aria-label="Forma de pago">
+      <button type="button" id="bill-year" data-billing="year" aria-pressed="true">Anual</button>
+      <button type="button" id="bill-once" data-billing="once" aria-pressed="false">Licencia única</button>
+    </div>
+
+    <div class="plans">
+      <article class="plan" data-plan="Gratis">
+        <div class="plan-head">
+          <span class="plan-level">NIVEL 01</span>
+          <h3>Gratis</h3>
+          <p class="plan-for">Para probar THSE Recorder con tus primeros registros.</p>
+        </div>
+        <div class="price"><span class="price-amount">$0</span><span class="price-unit">para siempre</span></div>
+        <p class="price-note">&nbsp;</p>
+        <dl class="specs">
+          <dt>Registros</dt><dd>10</dd>
+          <dt>Exportación</dt><dd>720p</dd>
+          <dt>Papelera</dt><dd>3 días</dd>
+          <dt>Equipos</dt><dd>1</dd>
+        </dl>
+        <ul class="features">
+          <li>Registro documental con HUD y código de registro</li>
+          <li>Formatos Original, 16:9 y 9:16</li>
+          <li>Looks None y Cinematic</li>
+          <li>Tipos de archivo FLD e INT</li>
+          <li>Ficha del registro en TXT</li>
+          <li>Línea «RECORDED WITH THSE» en el HUD</li>
+        </ul>
+        <a class="btn btn-ghost" href="#acceso" data-choose="Gratis">Empezar gratis</a>
+      </article>
+
+      <article class="plan featured" data-plan="Personal">
+        <span class="plan-badge">Recomendado</span>
+        <div class="plan-head">
+          <span class="plan-level">NIVEL 02</span>
+          <h3>Personal</h3>
+          <p class="plan-for">Para creadores y personas que documentan sus procesos.</p>
+        </div>
+        <div class="price"><span class="price-amount" data-year="$24" data-once="$34">$24</span><span class="price-unit" data-year="/ año" data-once="una vez">/ año</span></div>
+        <p class="price-note" data-year="Equivale a $2 al mes" data-once="Licencia de por vida para tu versión">Equivale a $2 al mes</p>
+        <dl class="specs">
+          <dt>Registros</dt><dd>Ilimitados</dd>
+          <dt>Exportación</dt><dd>1080p</dd>
+          <dt>Papelera</dt><dd>14 días</dd>
+          <dt>Equipos</dt><dd>3</dd>
+        </dl>
+        <ul class="features">
+          <li class="inherit">Todo lo de Gratis, sin la marca en el HUD</li>
+          <li>Los 7 formatos, de 9:16 a 2.39:1</li>
+          <li>Recorte, barras negras o fondo difuminado</li>
+          <li>Todos los Looks: Cinematic, Blue, Grain y Retro</li>
+          <li>Los 4 tipos de archivo: FLD, LAB, INT y ARCH</li>
+          <li>Ficha del registro en PDF, TXT y JSON</li>
+          <li>Plantillas desde un registro existente</li>
+        </ul>
+        <a class="btn" href="#acceso" data-choose="Personal">Elegir Personal</a>
+      </article>
+
+      <article class="plan" data-plan="Pro">
+        <div class="plan-head">
+          <span class="plan-level">NIVEL 03</span>
+          <h3>Pro</h3>
+          <p class="plan-for">Para profesionales que entregan registros con respaldo documental.</p>
+        </div>
+        <div class="price"><span class="price-amount" data-year="$59" data-once="$89">$59</span><span class="price-unit" data-year="/ año" data-once="una vez">/ año</span></div>
+        <p class="price-note" data-year="Equivale a $4,90 al mes" data-once="Licencia de por vida para tu versión">Equivale a $4,90 al mes</p>
+        <dl class="specs">
+          <dt>Registros</dt><dd>Ilimitados</dd>
+          <dt>Exportación</dt><dd>1080p</dd>
+          <dt>Papelera</dt><dd>30 días</dd>
+          <dt>Equipos</dt><dd>5</dd>
+        </dl>
+        <ul class="features">
+          <li class="inherit">Todo lo de Personal</li>
+          <li>Tipos de archivo propios, sin límite</li>
+          <li>Catálogo de la biblioteca en PDF</li>
+          <li>Acciones en lote: PDF, JSON y borrado</li>
+          <li>Historial de exportaciones y registro de cambios en la ficha</li>
+          <li>Logo propio en el HUD <span class="soon-tag">Pronto</span></li>
+          <li>Campos personalizados <span class="soon-tag">Pronto</span></li>
+          <li>Huella de integridad SHA-256 <span class="soon-tag">Pronto</span></li>
+        </ul>
+        <a class="btn btn-ghost" href="#acceso" data-choose="Pro">Elegir Pro</a>
+      </article>
+
+      <article class="plan" data-plan="Estudio">
+        <span class="plan-badge soon">Lista de espera</span>
+        <div class="plan-head">
+          <span class="plan-level">NIVEL 04</span>
+          <h3>Estudio</h3>
+          <p class="plan-for">Para equipos, escuelas y laboratorios que comparten un equipo.</p>
+        </div>
+        <div class="price"><span class="price-amount" data-year="$149" data-once="$229">$149</span><span class="price-unit" data-year="/ año" data-once="una vez">/ año</span></div>
+        <p class="price-note" data-year="Hasta 5 personas" data-once="Hasta 5 personas">Hasta 5 personas</p>
+        <dl class="specs">
+          <dt>Registros</dt><dd>Ilimitados</dd>
+          <dt>Exportación</dt><dd>1080p</dd>
+          <dt>Papelera</dt><dd>30 días</dd>
+          <dt>Usuarios</dt><dd>5</dd>
+        </dl>
+        <ul class="features">
+          <li class="inherit">Todo lo de Pro</li>
+          <li>Inicio con usuarios, cada uno con su biblioteca <span class="soon-tag">Pronto</span></li>
+          <li>Perfiles de uso: Docentes, Laboratorio, Cineastas y más <span class="soon-tag">Pronto</span></li>
+          <li>Compilar un proyecto en un solo video <span class="soon-tag">Pronto</span></li>
+          <li>Licencias para cursos y grupos</li>
+          <li>Soporte prioritario</li>
+        </ul>
+        <a class="btn btn-ghost" href="#acceso" data-choose="Estudio">Unirme a la lista</a>
+      </article>
+    </div>
+
+    <div class="founder"><b>Licencia Fundador</b> Condiciones especiales para las primeras 100 licencias del lanzamiento.</div>
+    <p class="plans-foot">Precios de referencia en USD, sujetos a cambios antes del lanzamiento. Habrá precios regionales para Latinoamérica. Lo marcado como «Pronto» está en desarrollo y se activa en tu plan cuando esté listo.</p>
+  </div>
+</section>
+
+<section class="band band-alt" id="comparar" aria-labelledby="comparar-title">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="label">Comparar planes</span>
+      <h2 id="comparar-title">Qué desbloquea cada nivel</h2>
+    </div>
+    <div class="compare-wrap">
+      <table class="compare">
+        <thead>
+          <tr><th scope="col">Función</th><th scope="col">Gratis</th><th scope="col" class="featured">Personal</th><th scope="col">Pro</th><th scope="col">Estudio</th></tr>
+        </thead>
+        <tbody>
+          <tr><th colspan="5" scope="colgroup">Registro</th></tr>
+          <tr><td>Registros en la biblioteca</td><td>10</td><td>Ilimitados</td><td>Ilimitados</td><td>Ilimitados</td></tr>
+          <tr><td>Proyectos, sesiones y anotaciones</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Tipos de archivo</td><td>FLD · INT</td><td>Los 4</td><td>Los 4 + propios</td><td>Los 4 + propios</td></tr>
+          <tr><td>Campos personalizados</td><td class="no">—</td><td class="no">—</td><td class="soon">Pronto</td><td class="soon">Pronto</td></tr>
+          <tr><th colspan="5" scope="colgroup">Video y HUD</th></tr>
+          <tr><td>Resolución máxima</td><td>720p</td><td>1080p</td><td>1080p</td><td>1080p</td></tr>
+          <tr><td>Formatos</td><td>3</td><td>7</td><td>7</td><td>7</td></tr>
+          <tr><td>Fondo difuminado y barras negras</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Looks</td><td>None · Cinematic</td><td>Los 5</td><td>Los 5</td><td>Los 5</td></tr>
+          <tr><td>HUD sin marca «RECORDED WITH THSE»</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Logo propio en el HUD</td><td class="no">—</td><td class="no">—</td><td class="soon">Pronto</td><td class="soon">Pronto</td></tr>
+          <tr><th colspan="5" scope="colgroup">Documentos y biblioteca</th></tr>
+          <tr><td>Ficha del registro</td><td>TXT</td><td>PDF · TXT · JSON</td><td>PDF · TXT · JSON</td><td>PDF · TXT · JSON</td></tr>
+          <tr><td>Catálogo de la biblioteca en PDF</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Acciones en lote</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Huella de integridad SHA-256</td><td class="no">—</td><td class="no">—</td><td class="soon">Pronto</td><td class="soon">Pronto</td></tr>
+          <tr><td>Respaldo JSON y recordatorios</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Papelera</td><td>3 días</td><td>14 días</td><td>30 días</td><td>30 días</td></tr>
+          <tr><th colspan="5" scope="colgroup">Equipo</th></tr>
+          <tr><td>Equipos por licencia</td><td>1</td><td>3</td><td>5</td><td>5</td></tr>
+          <tr><td>Usuarios con biblioteca propia</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="soon">Pronto · 5</td></tr>
+          <tr><td>Compilar un proyecto en un video</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="soon">Pronto</td></tr>
+          <tr><td>Soporte</td><td>Comunidad</td><td>Correo</td><td>Correo</td><td>Prioritario</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="preguntas" aria-labelledby="preguntas-title">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="label">Preguntas frecuentes</span>
+      <h2 id="preguntas-title">Antes de elegir</h2>
+    </div>
+    <div class="faq">
+      <details>
+        <summary>¿Mis videos se suben a algún servidor?</summary>
+        <p>No. THSE Recorder procesa el video en tu navegador y guarda la biblioteca en tu equipo. Esto vale para todos los planes.</p>
+      </details>
+      <details>
+        <summary>¿Qué pasa con mis registros si cambio de plan?</summary>
+        <p>Se mantienen. Si bajas de plan, conservas tus registros y respaldos; solo cambian las funciones disponibles para lo nuevo que crees.</p>
+      </details>
+      <details>
+        <summary>¿Qué necesito para usarlo?</summary>
+        <p>Un computador con Google Chrome o Microsoft Edge. La versión para celular está en estudio; por ahora, pasa el video al computador.</p>
+      </details>
+      <details>
+        <summary>¿Anual o licencia única?</summary>
+        <p>Con el pago anual recibes todas las actualizaciones mientras esté activo. La licencia única es para siempre y se usa sin conexión a una cuenta.</p>
+      </details>
+      <details>
+        <summary>¿Qué significa «Pronto»?</summary>
+        <p>Son funciones en desarrollo. Cuando estén listas, se activan sin costo extra en los planes que las incluyen.</p>
+      </details>
+      <details>
+        <summary>¿Cuándo sale?</summary>
+        <p>THSE Recorder está en pruebas internas. Deja tus datos abajo y te avisamos cuando abra el acceso, con las condiciones de la Licencia Fundador.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="band band-alt" id="acceso" aria-labelledby="form-title">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="label">Acceso anticipado</span>
+      <h2 id="form-title">Pide tu acceso</h2>
+      <p>Te escribiremos cuando abra el programa de pruebas. Los campos con <span class="req">*</span> son obligatorios.</p>
+    </div>
+
+    <div class="panel">
       <div id="demo-notice" class="notice" hidden>
         <strong>Modo demostración.</strong> Falta pegar la URL del Apps Script en <code>SCRIPT_URL</code>. Puedes enviar el formulario para practicar, pero los datos no llegan a Google Sheets.
       </div>
@@ -255,12 +596,23 @@ footer .wrap { padding-block: 18px; display: flex; justify-content: space-betwee
             <option>Cine documental</option>
             <option>Laboratorio</option>
             <option>Archivo o patrimonio</option>
+            <option>Docencia</option>
             <option>Otro</option>
           </select>
         </div>
+        <div class="field full">
+          <label for="plan">Plan que te interesa</label>
+          <select id="plan" name="plan">
+            <option>Aún no lo sé</option>
+            <option>Gratis</option>
+            <option>Personal</option>
+            <option>Pro</option>
+            <option>Estudio</option>
+          </select>
+        </div>
 
-        <fieldset class="field full" style="border:0;padding:0;margin:0">
-          <legend style="font-size:0.86rem;font-weight:500;color:var(--text-2);margin-bottom:6px">Tipo de registro que más harías</legend>
+        <fieldset class="field full">
+          <legend>Tipo de registro que más harías</legend>
           <div class="types">
             <label class="type"><input id="tipo-fld" type="radio" name="tipo_registro" value="FLD · Field Report" checked><span><b>FLD</b><small>Reporte de campo</small></span></label>
             <label class="type"><input id="tipo-lab" type="radio" name="tipo_registro" value="LAB · Lab Note"><span><b>LAB</b><small>Nota de laboratorio</small></span></label>
@@ -286,18 +638,18 @@ footer .wrap { padding-block: 18px; display: flex; justify-content: space-betwee
         </div>
 
         <div class="full actions">
-          <button id="submit-btn" type="submit">Enviar solicitud</button>
+          <button id="submit-btn" class="btn" type="submit">Enviar solicitud</button>
           <p id="form-status" class="status" role="status" aria-live="polite"></p>
         </div>
       </form>
-    </section>
-
+    </div>
   </div>
+</section>
 </main>
 
 <footer>
   <div class="wrap">
-    <span>THSE Recorder · Página de práctica para la capacitación de Google Sheets</span>
+    <span>© <span id="year">2026</span> THSE Recorder · Registro audiovisual local</span>
     <span class="mono">Tu material original nunca sale de tu dispositivo.</span>
   </div>
 </footer>
@@ -315,27 +667,44 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxO-on9EZE5wZZt5D3jDKd
   var form = document.getElementById("access-form");
   var statusEl = document.getElementById("form-status");
   var submitBtn = document.getElementById("submit-btn");
+  var planSelect = document.getElementById("plan");
 
-  function pad(n, len) { return String(n).padStart(len || 2, "0"); }
-  function stamp(d) { return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()); }
+  function pad(n) { return String(n).padStart(2, "0"); }
 
   // Código de solicitud con el estilo de los ID de registro: ACC-AAAAMMDD-HHMMSS
   function requestId(d) {
-    return "ACC-" + stamp(d) + "-" + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+    return "ACC-" + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) +
+      "-" + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
   }
 
-  // Visor HUD: código de tiempo y fecha
-  var start = Date.now();
-  var tc = document.getElementById("hud-tc");
+  // Visor HUD (detenido): fecha de hoy en el código de registro de ejemplo
   var now = new Date();
-  document.getElementById("hud-id").textContent = requestId(now);
-  document.getElementById("hud-date").textContent = now.toLocaleDateString("es", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
-  function tick() {
-    var ms = Date.now() - start;
-    var f = Math.floor(ms / 40) % 25, s = Math.floor(ms / 1000);
-    tc.textContent = pad(Math.floor(s / 3600)) + ":" + pad(Math.floor(s / 60) % 60) + ":" + pad(s % 60) + ":" + pad(f);
-  }
-  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(tick, 40);
+  var ymd = now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate());
+  document.getElementById("hud-id").textContent = "G3N3515-" + ymd + "-001";
+  document.getElementById("hud-date").textContent = now.toLocaleDateString("es", { day: "2-digit", month: "short", year: "numeric" }).replace(/\./g, "").toUpperCase();
+  document.getElementById("year").textContent = now.getFullYear();
+
+  // Selector Anual / Licencia única
+  var billingButtons = document.querySelectorAll("[data-billing]");
+  Array.prototype.forEach.call(billingButtons, function (btn) {
+    btn.addEventListener("click", function () {
+      var mode = btn.getAttribute("data-billing");
+      Array.prototype.forEach.call(billingButtons, function (b) { b.setAttribute("aria-pressed", String(b === btn)); });
+      Array.prototype.forEach.call(document.querySelectorAll("[data-year]"), function (el) {
+        el.textContent = el.getAttribute("data-" + mode);
+      });
+    });
+  });
+
+  // Botones de los planes: eligen el plan en el formulario
+  Array.prototype.forEach.call(document.querySelectorAll("[data-choose]"), function (link) {
+    link.addEventListener("click", function () {
+      planSelect.value = link.getAttribute("data-choose");
+      planSelect.classList.add("highlight");
+      setTimeout(function () { planSelect.classList.remove("highlight"); }, 1600);
+      setTimeout(function () { document.getElementById("nombre").focus({ preventScroll: true }); }, 450);
+    });
+  });
 
   if (!SCRIPT_URL.trim()) document.getElementById("demo-notice").hidden = false;
 
@@ -368,8 +737,7 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxO-on9EZE5wZZt5D3jDKd
       return;
     }
 
-    var d = new Date();
-    var id = requestId(d);
+    var id = requestId(new Date());
     // Formulario codificado (application/x-www-form-urlencoded): Apps Script
     // lo recibe en e.parameter y no hay problemas de CORS.
     var data = new URLSearchParams(new FormData(form));
@@ -393,11 +761,11 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxO-on9EZE5wZZt5D3jDKd
       .then(function (res) { return res.json(); })
       .then(function (json) {
         if (json.result !== "success") throw new Error(json.error || "Respuesta inesperada");
-        done("Solicitud registrada en Google Sheets.");
+        done("Solicitud registrada.");
       })
       .catch(function (err) {
         console.error(err);
-        setStatus("No se pudo enviar. Revisa que SCRIPT_URL sea la URL /exec y que el acceso esté en «Cualquier usuario».", "err");
+        setStatus("No se pudo enviar. Revisa tu conexión e inténtalo de nuevo en unos minutos.", "err");
       })
       .finally(function () { submitBtn.disabled = false; });
   });
