@@ -21,14 +21,18 @@ Si `SCRIPT_URL` está vacía, la página funciona en **modo demostración**: el 
 
 ## Conectar con Google Sheets
 
-### 1. Crear la hoja
-1. Entra a [sheets.new](https://sheets.new) y ponle un nombre, por ejemplo *Solicitudes THSE*.
-2. No hace falta crear columnas: el script crea la pestaña **Respuestas** con los encabezados en el primer envío.
+El script ya está configurado para tu hoja:
+[`1xc0QbNpt92GBnlFsgVmwLWI7gl7MX1lB_bVE1-Z886k`](https://docs.google.com/spreadsheets/d/1xc0QbNpt92GBnlFsgVmwLWI7gl7MX1lB_bVE1-Z886k/edit), primera pestaña (`gid=0`). Si cambias de hoja o de pestaña, edita `SPREADSHEET_ID` y `SHEET_GID` al inicio de `Code.gs`.
 
-### 2. Agregar el Apps Script
-1. En la hoja: **Extensiones → Apps Script**.
+### 1. Agregar el Apps Script
+1. Abre tu hoja y ve a **Extensiones → Apps Script**.
 2. Borra el contenido de `Código.gs` y pega el contenido de [`apps-script/Code.gs`](apps-script/Code.gs).
 3. Guarda (`Ctrl + S`).
+
+### 2. Probar la conexión
+1. Arriba, en el selector de funciones, elige **probarConexion** y pulsa **▶ Ejecutar**.
+2. Autoriza los permisos. Si aparece "Google no verificó esta app": *Configuración avanzada → Ir a … (no seguro)*. Es tu propio script.
+3. En el registro debe aparecer `Conectado a "…", pestaña "…"`. En la hoja, el script agrega al final de la fila 1 las columnas del formulario que falten.
 
 ### 3. Publicar como aplicación web
 1. **Implementar → Nueva implementación**.
@@ -36,10 +40,10 @@ Si `SCRIPT_URL` está vacía, la página funciona en **modo demostración**: el 
 3. Configura:
    - **Ejecutar como:** Yo
    - **Quién tiene acceso:** Cualquier persona
-4. Pulsa **Implementar** y autoriza los permisos. Si aparece "Google no verificó esta app": *Configuración avanzada → Ir a … (no seguro)*. Es tu propio script.
+4. Pulsa **Implementar** (si pide permisos de nuevo, autorízalos).
 5. Copia la **URL de la aplicación web** (termina en `/exec`).
 
-> Si abres esa URL en el navegador, debe mostrar `{"result":"ok", ...}`.
+> Si abres esa URL en el navegador, debe mostrar `{"result":"ok", ...}` y qué columna de tu hoja recibe cada campo del formulario.
 
 ### 4. Pegar la URL en la página
 Abre `index.html` con un editor de texto (Bloc de notas, VS Code), busca `SCRIPT_URL` y pega la URL entre las comillas:
@@ -48,20 +52,39 @@ Abre `index.html` con un editor de texto (Bloc de notas, VS Code), busca `SCRIPT
 var SCRIPT_URL = "https://script.google.com/macros/s/XXXXXXXX/exec";
 ```
 
-Guarda, vuelve a abrir la página, envía el formulario y revisa la pestaña **Respuestas** de tu hoja.
+Guarda, vuelve a abrir la página, envía el formulario y revisa tu hoja.
 
 ## Columnas de la hoja
 
-`fecha · solicitud · nombre · email · organizacion · rol · tipo_registro · uso · consentimiento · pagina`
+El script lee los encabezados de la fila 1 y busca la columna de cada campo por su nombre. No importa el orden, las mayúsculas ni las tildes, y acepta nombres alternativos:
 
-La columna `solicitud` es un código con el estilo de los ID de registro de THSE Recorder: `ACC-AAAAMMDD-HHMMSS`.
+| Campo del formulario | Encabezado que crea si falta | También reconoce |
+|---|---|---|
+| `fecha` | Fecha | Marca temporal, Timestamp, Fecha y hora |
+| `solicitud` | Código solicitud | ID, Código, Folio, N° solicitud |
+| `nombre` | Nombre | Nombre completo, Nombre y apellido, Participante |
+| `email` | Correo | Correo electrónico, E-mail, Mail |
+| `organizacion` | Organización | Empresa, Institución, Proyecto |
+| `rol` | Rol | Cargo, Ocupación, Perfil |
+| `tipo_registro` | Tipo de registro | Tipo, Registro |
+| `uso` | Uso | ¿Qué te gustaría registrar?, Mensaje, Comentarios |
+| `consentimiento` | Consentimiento | Acepta, Autorización |
+| `pagina` | Página | Origen, URL |
 
-## Agregar o cambiar campos
+- Si la hoja está vacía, crea todos los encabezados en ese orden.
+- Si un campo no tiene columna, la agrega al final de la fila 1.
+- Las columnas de tu hoja que no son del formulario quedan vacías en cada fila nueva.
+- `solicitud` es un código con el estilo de los ID de registro de THSE Recorder: `ACC-AAAAMMDD-HHMMSS`.
 
-1. En `index.html`, agrega el campo con un atributo `name`, por ejemplo `<input name="ciudad">`, y agrega `"ciudad"` a la lista `HEADERS` del script de la página (solo afecta la vista previa).
-2. En `Code.gs`, agrega `'ciudad'` a la lista `HEADERS`.
-3. Agrega la columna `ciudad` en la fila 1 de la hoja (o borra la pestaña para que se vuelva a crear).
-4. **Importante:** cada cambio en `Code.gs` requiere **Implementar → Gestionar implementaciones → Editar (lápiz) → Versión: Nueva versión → Implementar**. La URL no cambia.
+Para que un encabezado tuyo se reconozca, agrégalo a `aliases` del campo en `FIELDS` (escrito en minúsculas y sin tildes).
+
+## Agregar un campo nuevo
+
+1. En `index.html`, agrega el campo con un atributo `name`, por ejemplo `<input name="ciudad">`. Para que salga en la vista previa, agrega `"ciudad"` a `HEADERS` y `"Ciudad"` a `LABELS` en el script de la página.
+2. En `Code.gs`, agrega a `FIELDS`: `{ key: 'ciudad', header: 'Ciudad', aliases: ['comuna'] }`.
+3. Publica una nueva versión (abajo). La columna se crea sola en el siguiente envío.
+
+**Importante:** cada cambio en `Code.gs` requiere **Implementar → Gestionar implementaciones → Editar (lápiz) → Versión: Nueva versión → Implementar**. La URL no cambia.
 
 ## Problemas frecuentes
 
@@ -69,11 +92,12 @@ La columna `solicitud` es un código con el estilo de los ID de registro de THSE
 |---|---|
 | "No se pudo enviar" | URL mal copiada, o el acceso no está en *Cualquier persona* |
 | Cambié `Code.gs` y no se nota | Falta publicar una **nueva versión** de la implementación |
-| Datos en columnas equivocadas | `HEADERS` de `Code.gs` no coincide con la fila 1 de la hoja |
+| Aparece una columna repetida al final | Tu encabezado tiene un nombre que el script no reconoce: agrégalo a `aliases` en `FIELDS` y borra la columna sobrante |
+| "No existe la pestaña con gid=…" | `SHEET_GID` no coincide con el número `gid=` de la URL de tu pestaña |
 | Error de CORS en la consola | No envíes JSON con `Content-Type: application/json`; la página usa formulario codificado a propósito |
 
 ## Seguridad
 
-- El script se ejecuta con tu cuenta, pero solo **agrega filas** a esta hoja; la URL no permite leerla.
+- El script se ejecuta con tu cuenta, pero solo **agrega filas** a esta hoja. La URL `/exec` muestra el nombre de la hoja y de sus columnas, nunca los datos.
 - Incluye un campo oculto anti-spam (*honeypot*) y un bloqueo para envíos simultáneos.
 - Los valores que empiezan con `=`, `+`, `-` o `@` se guardan como texto para evitar inyección de fórmulas.

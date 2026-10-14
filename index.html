@@ -306,9 +306,9 @@ footer .wrap { padding-block: 18px; display: flex; justify-content: space-betwee
 
     <section class="panel" aria-labelledby="sheet-title">
       <div class="panel-head">
-        <span class="label">Google Sheets · pestaña «Respuestas»</span>
+        <span class="label">Google Sheets · Solicitudes THSE</span>
         <h2 id="sheet-title">Así llega a tu hoja</h2>
-        <p>Cada envío se agrega como una fila nueva. La primera fila es un ejemplo.</p>
+        <p>Cada envío se agrega como una fila nueva en tu hoja. El script pone cada dato en la columna que corresponde, aunque tus columnas tengan otro orden o nombre. La primera fila es un ejemplo.</p>
       </div>
       <div class="flow"><span>Formulario</span><i>→</i><span>Apps Script /exec</span><i>→</i><span>Google Sheets</span></div>
       <div class="sheet-wrap">
@@ -318,8 +318,8 @@ footer .wrap { padding-block: 18px; display: flex; justify-content: space-betwee
         </table>
       </div>
       <ol class="steps">
-        <li>Crea una hoja en <strong>sheets.new</strong>.</li>
-        <li>Abre <strong>Extensiones → Apps Script</strong> y pega <code>Code.gs</code>.</li>
+        <li>Abre tu hoja y ve a <strong>Extensiones → Apps Script</strong>.</li>
+        <li>Pega <code>Code.gs</code> y ejecuta <strong>probarConexion</strong> una vez.</li>
         <li><strong>Implementar → Aplicación web</strong>, con acceso para <strong>Cualquier persona</strong>.</li>
         <li>Pega la URL <code>/exec</code> en <code>SCRIPT_URL</code>, dentro de este archivo.</li>
       </ol>
@@ -344,8 +344,9 @@ var SCRIPT_URL = "";
 (function () {
   "use strict";
 
-  // Mismas columnas que HEADERS en Code.gs
+  // Mismos campos y encabezados que FIELDS en Code.gs
   var HEADERS = ["fecha", "solicitud", "nombre", "email", "organizacion", "rol", "tipo_registro", "uso", "consentimiento", "pagina"];
+  var LABELS = ["Fecha", "Código solicitud", "Nombre", "Correo", "Organización", "Rol", "Tipo de registro", "Uso", "Consentimiento", "Página"];
 
   var form = document.getElementById("access-form");
   var statusEl = document.getElementById("form-status");
@@ -377,7 +378,7 @@ var SCRIPT_URL = "";
   // Vista previa de la hoja
   var head = document.getElementById("sheet-head");
   head.innerHTML = '<th class="n"></th>';
-  HEADERS.forEach(function (h) {
+  LABELS.forEach(function (h) {
     var th = document.createElement("th");
     th.textContent = h;
     head.appendChild(th);
