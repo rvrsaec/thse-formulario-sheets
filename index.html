@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>THSE Recorder Acceso</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: banda superior con un visor HUD como portada; debajo, formulario y vista previa de la hoja en dos columnas que se apilan en el celular. */
+:root {
+  --bg: #03080b;
+  --panel: #0b151a;
+  --field: #071014;
+  --line: rgba(185, 216, 222, 0.17);
+  --line-soft: rgba(185, 216, 222, 0.09);
+  --text: #e6eeee;
+  --text-2: #9aabad;
+  --text-3: #74888c;
+  --accent: #d9a441;
+  --accent-soft: rgba(217, 164, 65, 0.12);
+  --on-accent: #1a1204;
+  --rec: #ff4a43;
+  --ok: #6fd49a;
+  --err: #e46c6c;
+  --viewer: #020608;
+  --hud: rgba(238, 243, 241, 0.86);
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Roboto Mono", Menlo, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #eef2f2; --panel: #ffffff; --field: #f6f8f8;
+    --line: rgba(20, 44, 50, 0.18); --line-soft: rgba(20, 44, 50, 0.09);
+    --text: #0e1c20; --text-2: #3f5357; --text-3: #5c6f73;
+    --accent: #9a6a10; --accent-soft: rgba(154, 106, 16, 0.10); --on-accent: #ffffff;
+    --rec: #d0302a; --ok: #1e7a45; --err: #b3261e;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #eef2f2; --panel: #ffffff; --field: #f6f8f8;
+  --line: rgba(20, 44, 50, 0.18); --line-soft: rgba(20, 44, 50, 0.09);
+  --text: #0e1c20; --text-2: #3f5357; --text-3: #5c6f73;
+  --accent: #9a6a10; --accent-soft: rgba(154, 106, 16, 0.10); --on-accent: #ffffff;
+  --rec: #d0302a; --ok: #1e7a45; --err: #b3261e;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 1rem/1.6 var(--font-body);
+}
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: 0.01em; }
+.label {
+  font: 500 0.72rem/1.4 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+code, .mono { font-family: var(--font-mono); }
+
+/* Barra superior */
+.top { border-bottom: 1px solid var(--line-soft); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 600 0.95rem var(--font-mono); letter-spacing: 0.14em; }
+.brand-mark { width: 22px; height: 22px; border: 1.5px solid var(--accent); border-radius: 4px; display: grid; place-items: center; }
+.brand-mark::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--rec); }
+.stage { font: 500 0.72rem var(--font-mono); letter-spacing: 0.1em; color: var(--accent); border: 1px solid var(--accent); padding: 3px 8px; border-radius: 3px; text-transform: uppercase; }
+
+/* Portada con visor HUD */
+.hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; padding-block: 56px 48px; }
+.hero h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.04; font-weight: 700; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero p { color: var(--text-2); max-width: 54ch; margin: 18px 0 0; }
+.hero-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+.viewer {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  max-width: 100%;
+  background:
+    radial-gradient(120% 90% at 30% 20%, rgba(119, 182, 215, 0.18), transparent 60%),
+    radial-gradient(90% 80% at 80% 90%, rgba(217, 164, 65, 0.16), transparent 60%),
+    var(--viewer);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  color: var(--hud);
+  font-size: clamp(0.6rem, 1.4vw, 0.74rem);
+  letter-spacing: 0.08em;
+}
+.viewer::before, .viewer::after { content: ""; position: absolute; width: 22px; height: 22px; border-color: var(--hud); border-style: solid; }
+.viewer::before { top: 12px; left: 12px; border-width: 1.5px 0 0 1.5px; }
+.viewer::after { bottom: 12px; right: 12px; border-width: 0 1.5px 1.5px 0; }
+.hud { position: absolute; display: flex; flex-direction: column; gap: 2px; }
+.hud-tl { top: 18px; left: 44px; }
+.hud-tr { top: 18px; right: 18px; text-align: right; }
+.hud-bl { bottom: 18px; left: 18px; }
+.hud-br { bottom: 18px; right: 44px; text-align: right; }
+.rec { display: inline-flex; align-items: center; gap: 6px; color: #fff; }
+.rec::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #ff4a43; animation: blink 1.2s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0.2; } }
+@media (prefers-reduced-motion: reduce) { .rec::before { animation: none; } }
+.hud-dim { opacity: 0.7; }
+
+/* Contenido principal */
+.main .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; padding-block: 8px 56px; align-items: start; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.panel h2 { font-size: 1.5rem; font-weight: 600; }
+.panel-head { display: flex; flex-direction: column; gap: 6px; }
+.panel-head p { margin: 0; color: var(--text-2); font-size: 0.94rem; }
+
+.notice { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 6px; padding: 10px 14px; font-size: 0.88rem; color: var(--text); }
+.notice code { color: var(--accent); }
+
+form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.full { grid-column: 1 / -1; }
+label { font-size: 0.86rem; font-weight: 500; color: var(--text-2); }
+label .req { color: var(--accent); }
+input[type="text"], input[type="email"], select, textarea {
+  font: inherit; font-size: 0.95rem;
+  padding: 10px 12px;
+  background: var(--field);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  width: 100%;
+}
+textarea { resize: vertical; min-height: 92px; }
+input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+}
+.invalid { border-color: var(--err) !important; }
+.types { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.type input { position: absolute; opacity: 0; pointer-events: none; }
+.type span {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 10px 4px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--field); cursor: pointer; text-align: center;
+}
+.type b { font: 600 0.9rem var(--font-mono); color: var(--text); letter-spacing: 0.06em; }
+.type small { font-size: 0.7rem; color: var(--text-3); line-height: 1.2; }
+.type input:checked + span { border-color: var(--accent); background: var(--accent-soft); }
+.type input:checked + span b { color: var(--accent); }
+.type input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 1px; }
+.check { flex-direction: row; align-items: flex-start; gap: 10px; }
+.check input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); flex: none; }
+.check label { font-weight: 400; }
+.check input.invalid { outline: 2px solid var(--err); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+.actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+button {
+  font: 600 0.9rem var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 12px 22px; border: 0; border-radius: 6px;
+  background: var(--accent); color: var(--on-accent); cursor: pointer;
+}
+button:hover { filter: brightness(1.08); }
+button:disabled { opacity: 0.6; cursor: wait; }
+.status { margin: 0; font-size: 0.9rem; min-width: 0; }
+.status.ok { color: var(--ok); }
+.status.err { color: var(--err); }
+.status .mono { color: var(--accent); }
+
+/* Vista previa de la hoja */
+.sheet-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font: 0.78rem/1.4 var(--font-mono); font-variant-numeric: tabular-nums; }
+th, td { border-right: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); padding: 6px 10px; text-align: left; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+th { background: var(--field); color: var(--text-3); font-weight: 500; position: sticky; top: 0; }
+th.n, td.n { color: var(--text-3); text-align: right; width: 1%; }
+tr.example td { color: var(--text-3); font-style: italic; }
+tr.fresh td { color: var(--text); background: var(--accent-soft); }
+.flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font: 500 0.74rem var(--font-mono); color: var(--text-2); letter-spacing: 0.06em; }
+.flow span { border: 1px solid var(--line); padding: 4px 8px; border-radius: 4px; }
+.flow i { font-style: normal; color: var(--accent); }
+.steps { margin: 0; padding-left: 20px; color: var(--text-2); font-size: 0.9rem; display: flex; flex-direction: column; gap: 6px; }
+.steps strong { color: var(--text); font-weight: 500; }
+
+footer { border-top: 1px solid var(--line-soft); }
+footer .wrap { padding-block: 18px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--text-3); font-size: 0.82rem; }
+
+@media (max-width: 860px) {
+  .hero .wrap, .main .wrap { grid-template-columns: 1fr; gap: 28px; }
+  .hero .wrap { padding-block: 36px 32px; }
+}
+@media (max-width: 480px) {
+  form { grid-template-columns: 1fr; }
+  .types { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .panel { padding: 18px; }
+  .hud-tr span:nth-child(2), .hud-bl span:nth-child(2) { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="brand-mark"></span>THSE RECORDER</div>
+    <span class="stage">Internal v1</span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-copy">
+      <span class="label">Solicitud de acceso · Programa de pruebas</span>
+      <h1>Convierte tus videos en <em>registros documentales</em></h1>
+      <p>THSE Recorder agrega contexto, metadatos y un HUD documental a tus grabaciones, y todo se procesa en tu dispositivo. Déjanos tus datos para sumarte a las pruebas de la versión interna.</p>
+    </div>
+    <div class="viewer" aria-hidden="true">
+      <div class="hud hud-tl"><span class="rec">REC</span><span class="hud-dim">FLD · FIELD REPORT</span></div>
+      <div class="hud hud-tr"><span id="hud-tc">00:00:00:00</span><span class="hud-dim">25 FPS · 1920×1080</span></div>
+      <div class="hud hud-bl"><span id="hud-id">ACC-00000000-000000</span><span class="hud-dim">SESIÓN 01</span></div>
+      <div class="hud hud-br"><span id="hud-date">—</span><span class="hud-dim">PROCESO LOCAL</span></div>
+    </div>
+  </div>
+</section>
+
+<main class="main">
+  <div class="wrap">
+    <section class="panel" aria-labelledby="form-title">
+      <div class="panel-head">
+        <span class="label">Formulario</span>
+        <h2 id="form-title">Pide tu acceso</h2>
+        <p>Los campos con <span style="color:var(--accent)">*</span> son obligatorios.</p>
+      </div>
+
+      <div id="demo-notice" class="notice" hidden>
+        <strong>Modo demostración.</strong> Falta pegar la URL del Apps Script en <code>SCRIPT_URL</code>. Puedes enviar el formulario igual: la fila aparece en la vista previa, pero no llega a Google Sheets.
+      </div>
+
+      <form id="access-form" novalidate>
+        <div class="field">
+          <label for="nombre">Nombre completo <span class="req">*</span></label>
+          <input id="nombre" name="nombre" type="text" autocomplete="name" required maxlength="100">
+        </div>
+        <div class="field">
+          <label for="email">Correo electrónico <span class="req">*</span></label>
+          <input id="email" name="email" type="email" autocomplete="email" required maxlength="120">
+        </div>
+        <div class="field">
+          <label for="organizacion">Organización o proyecto</label>
+          <input id="organizacion" name="organizacion" type="text" autocomplete="organization" maxlength="100">
+        </div>
+        <div class="field">
+          <label for="rol">Tu rol <span class="req">*</span></label>
+          <select id="rol" name="rol" required>
+            <option value="">Selecciona una opción</option>
+            <option>Investigación de campo</option>
+            <option>Periodismo</option>
+            <option>Cine documental</option>
+            <option>Laboratorio</option>
+            <option>Archivo o patrimonio</option>
+            <option>Otro</option>
+          </select>
+        </div>
+
+        <fieldset class="field full" style="border:0;padding:0;margin:0">
+          <legend style="font-size:0.86rem;font-weight:500;color:var(--text-2);margin-bottom:6px">Tipo de registro que más harías</legend>
+          <div class="types">
+            <label class="type"><input id="tipo-fld" type="radio" name="tipo_registro" value="FLD · Field Report" checked><span><b>FLD</b><small>Reporte de campo</small></span></label>
+            <label class="type"><input id="tipo-lab" type="radio" name="tipo_registro" value="LAB · Lab Note"><span><b>LAB</b><small>Nota de laboratorio</small></span></label>
+            <label class="type"><input id="tipo-int" type="radio" name="tipo_registro" value="INT · Interview"><span><b>INT</b><small>Entrevista</small></span></label>
+            <label class="type"><input id="tipo-arch" type="radio" name="tipo_registro" value="ARCH · Archive"><span><b>ARCH</b><small>Archivo</small></span></label>
+          </div>
+        </fieldset>
+
+        <div class="field full">
+          <label for="uso">¿Qué te gustaría registrar?</label>
+          <textarea id="uso" name="uso" maxlength="1000" placeholder="Ej.: entrevistas en terreno para un proyecto de memoria oral"></textarea>
+        </div>
+
+        <!-- Campo trampa contra spam: las personas no lo ven, los bots lo llenan -->
+        <div class="hp" aria-hidden="true">
+          <label for="website">No completar</label>
+          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="field full check">
+          <input id="consentimiento" name="consentimiento" type="checkbox" value="Sí" required>
+          <label for="consentimiento">Acepto que guarden mis datos para contactarme sobre THSE Recorder. <span class="req">*</span></label>
+        </div>
+
+        <div class="full actions">
+          <button id="submit-btn" type="submit">Enviar solicitud</button>
+          <p id="form-status" class="status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel" aria-labelledby="sheet-title">
+      <div class="panel-head">
+        <span class="label">Google Sheets · pestaña «Respuestas»</span>
+        <h2 id="sheet-title">Así llega a tu hoja</h2>
+        <p>Cada envío se agrega como una fila nueva. La primera fila es un ejemplo.</p>
+      </div>
+      <div class="flow"><span>Formulario</span><i>→</i><span>Apps Script /exec</span><i>→</i><span>Google Sheets</span></div>
+      <div class="sheet-wrap">
+        <table>
+          <thead><tr id="sheet-head"></tr></thead>
+          <tbody id="sheet-body"></tbody>
+        </table>
+      </div>
+      <ol class="steps">
+        <li>Crea una hoja en <strong>sheets.new</strong>.</li>
+        <li>Abre <strong>Extensiones → Apps Script</strong> y pega <code>Code.gs</code>.</li>
+        <li><strong>Implementar → Aplicación web</strong>, con acceso para <strong>Cualquier persona</strong>.</li>
+        <li>Pega la URL <code>/exec</code> en <code>SCRIPT_URL</code>, dentro de este archivo.</li>
+      </ol>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>THSE Recorder · Página de práctica para la capacitación de Google Sheets</span>
+    <span class="mono">Tu material original nunca sale de tu dispositivo.</span>
+  </div>
+</footer>
+
+<script>
+// ─── CONFIGURACIÓN ──────────────────────────────────────────────
+// Pega aquí la URL de tu aplicación web de Apps Script (termina en /exec).
+// Si la dejas vacía, la página funciona en modo demostración.
+var SCRIPT_URL = "";
+// ────────────────────────────────────────────────────────────────
+
+(function () {
+  "use strict";
+
+  // Mismas columnas que HEADERS en Code.gs
+  var HEADERS = ["fecha", "solicitud", "nombre", "email", "organizacion", "rol", "tipo_registro", "uso", "consentimiento", "pagina"];
+
+  var form = document.getElementById("access-form");
+  var statusEl = document.getElementById("form-status");
+  var submitBtn = document.getElementById("submit-btn");
+  var body = document.getElementById("sheet-body");
+  var rowCount = 1;
+
+  function pad(n, len) { return String(n).padStart(len || 2, "0"); }
+  function stamp(d) { return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()); }
+
+  // Código de solicitud con el estilo de los ID de registro: ACC-AAAAMMDD-HHMMSS
+  function requestId(d) {
+    return "ACC-" + stamp(d) + "-" + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+  }
+
+  // Visor HUD: código de tiempo y fecha
+  var start = Date.now();
+  var tc = document.getElementById("hud-tc");
+  var now = new Date();
+  document.getElementById("hud-id").textContent = requestId(now);
+  document.getElementById("hud-date").textContent = now.toLocaleDateString("es", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
+  function tick() {
+    var ms = Date.now() - start;
+    var f = Math.floor(ms / 40) % 25, s = Math.floor(ms / 1000);
+    tc.textContent = pad(Math.floor(s / 3600)) + ":" + pad(Math.floor(s / 60) % 60) + ":" + pad(s % 60) + ":" + pad(f);
+  }
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(tick, 40);
+
+  // Vista previa de la hoja
+  var head = document.getElementById("sheet-head");
+  head.innerHTML = '<th class="n"></th>';
+  HEADERS.forEach(function (h) {
+    var th = document.createElement("th");
+    th.textContent = h;
+    head.appendChild(th);
+  });
+  function addRow(values, cls) {
+    rowCount += 1;
+    var tr = document.createElement("tr");
+    if (cls) tr.className = cls;
+    var n = document.createElement("td");
+    n.className = "n";
+    n.textContent = rowCount;
+    tr.appendChild(n);
+    HEADERS.forEach(function (h) {
+      var td = document.createElement("td");
+      td.textContent = values[h] || "";
+      td.title = values[h] || "";
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  }
+  addRow({
+    fecha: "14/10/2026 10:32:05", solicitud: "ACC-20261014-103205", nombre: "Ejemplo: Valentina Rojas",
+    email: "valentina@ejemplo.org", organizacion: "Archivo Oral del Sur", rol: "Investigación de campo",
+    tipo_registro: "INT · Interview", uso: "Entrevistas en terreno", consentimiento: "Sí", pagina: "ejemplo"
+  }, "example");
+
+  if (!SCRIPT_URL.trim()) document.getElementById("demo-notice").hidden = false;
+
+  function setStatus(html, type) {
+    statusEl.innerHTML = html;
+    statusEl.className = "status" + (type ? " " + type : "");
+  }
+
+  function validate() {
+    var valid = true;
+    Array.prototype.forEach.call(form.elements, function (el) {
+      if (!el.willValidate || el.type === "radio") return;
+      var ok = el.checkValidity();
+      el.classList.toggle("invalid", !ok);
+      if (!ok) valid = false;
+    });
+    return valid;
+  }
+
+  form.addEventListener("input", function (e) {
+    if (e.target.classList.contains("invalid") && e.target.checkValidity()) e.target.classList.remove("invalid");
+  });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!validate()) {
+      setStatus("Completa los campos marcados en rojo.", "err");
+      var first = form.querySelector(".invalid");
+      if (first) first.focus();
+      return;
+    }
+
+    var d = new Date();
+    var id = requestId(d);
+    // Formulario codificado (application/x-www-form-urlencoded): Apps Script
+    // lo recibe en e.parameter y no hay problemas de CORS.
+    var data = new URLSearchParams(new FormData(form));
+    data.set("solicitud", id);
+    data.set("pagina", location.protocol === "file:" ? "archivo local" : location.href);
+
+    var row = Object.fromEntries(data);
+    row.fecha = d.toLocaleString("es");
+
+    function done(msg) {
+      addRow(row, "fresh");
+      setStatus(msg + ' Código: <span class="mono">' + id + "</span>", "ok");
+      form.reset();
+    }
+
+    if (!SCRIPT_URL.trim()) {
+      done("Modo demostración: fila agregada solo a la vista previa.");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    setStatus("Enviando…");
+    fetch(SCRIPT_URL.trim(), { method: "POST", body: data })
+      .then(function (res) { return res.json(); })
+      .then(function (json) {
+        if (json.result !== "success") throw new Error(json.error || "Respuesta inesperada");
+        done("Solicitud registrada en Google Sheets.");
+      })
+      .catch(function (err) {
+        console.error(err);
+        setStatus("No se pudo enviar. Revisa que SCRIPT_URL sea la URL /exec y que el acceso esté en «Cualquier persona».", "err");
+      })
+      .finally(function () { submitBtn.disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>
