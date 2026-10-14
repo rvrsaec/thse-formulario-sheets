@@ -27,7 +27,7 @@ La página se publica con **GitHub Pages** desde la rama `main`, carpeta raíz (
 
 También puedes usarla sin GitHub Pages: descarga `index.html` y ábrelo con doble clic. Para enviar el formulario se necesita conexión a internet.
 
-Si `SCRIPT_URL` está vacía, la página funciona en **modo demostración**: el formulario se puede enviar y la fila aparece en la vista previa «Así llega a tu hoja», pero no llega a Google Sheets. Sirve para practicar o para copiar la página a otro proyecto antes de conectarla.
+Si `SCRIPT_URL` está vacía, la página funciona en **modo demostración**: el formulario se puede enviar, pero los datos no llegan a Google Sheets (se ven en la consola del navegador, F12). Sirve para practicar o para copiar la página a otro proyecto antes de conectarla.
 
 ## Conectar con Google Sheets
 
@@ -92,7 +92,7 @@ Para que un encabezado tuyo se reconozca, agrégalo a `aliases` del campo en `FI
 
 ## Agregar un campo nuevo
 
-1. En `index.html`, agrega el campo con un atributo `name`, por ejemplo `<input name="ciudad">`. Para que salga en la vista previa, agrega `"ciudad"` a `HEADERS` y `"Ciudad"` a `LABELS` en el script de la página.
+1. En `index.html`, agrega el campo dentro del formulario con un atributo `name`, por ejemplo `<input name="ciudad">`.
 2. En `Code.gs`, agrega a `FIELDS`: `{ key: 'ciudad', header: 'Ciudad', aliases: ['comuna'] }`.
 3. Publica una nueva versión (abajo). La columna se crea sola en el siguiente envío.
 
