@@ -1,5 +1,7 @@
 # THSE Recorder · Formulario conectado a Google Sheets
 
+**Página publicada: https://rvrsaec.github.io/thse-formulario-sheets/**
+
 Página de práctica para una capacitación de Google Sheets, con la temática de THSE Recorder. Es una página de solicitud de acceso: cada envío del formulario se guarda como una fila nueva en una hoja de Google Sheets, usando **Google Apps Script** como API intermedia (sin servidor propio y sin claves en el navegador).
 
 ```
@@ -13,15 +15,25 @@ Navegador (index.html)  ──POST──▶  Apps Script (/exec)  ──▶  Goo
 | `index.html` | La página completa: estilos, formulario y código en un solo archivo. Arriba del `<script>` está `SCRIPT_URL`, donde pegas la URL de tu Apps Script |
 | `apps-script/Code.gs` | Recibe los datos y escribe en la hoja |
 
-## Cómo abrir la página
+## Para participantes
 
-Descarga `index.html` y ábrelo con doble clic: se abre en tu navegador (Chrome, Edge, Firefox). No necesitas instalar nada.
+1. Abre **https://rvrsaec.github.io/thse-formulario-sheets/** en el celular o el computador.
+2. Completa el formulario y pulsa **Enviar solicitud**.
+3. Si todo sale bien, aparece en verde **"Solicitud registrada en Google Sheets"** con tu código `ACC-…`, y la fila llega a la hoja del taller.
 
-Si `SCRIPT_URL` está vacía, la página funciona en **modo demostración**: el formulario se puede enviar y la fila aparece en la vista previa «Así llega a tu hoja», pero no llega a Google Sheets.
+## Cómo se publica la página
+
+La página se publica con **GitHub Pages** desde la rama `main`, carpeta raíz (**Settings → Pages**). Cada cambio que se sube a `index.html` se publica solo en uno o dos minutos.
+
+También puedes usarla sin GitHub Pages: descarga `index.html` y ábrelo con doble clic. Para enviar el formulario se necesita conexión a internet.
+
+Si `SCRIPT_URL` está vacía, la página funciona en **modo demostración**: el formulario se puede enviar y la fila aparece en la vista previa «Así llega a tu hoja», pero no llega a Google Sheets. Sirve para practicar o para copiar la página a otro proyecto antes de conectarla.
 
 ## Conectar con Google Sheets
 
-El script ya está configurado para tu hoja:
+> Esta página **ya está conectada** a la hoja del taller. Estos pasos sirven para repetir la configuración con otra hoja o explicar cómo se hizo.
+
+El script está configurado para esta hoja:
 [`1xc0QbNpt92GBnlFsgVmwLWI7gl7MX1lB_bVE1-Z886k`](https://docs.google.com/spreadsheets/d/1xc0QbNpt92GBnlFsgVmwLWI7gl7MX1lB_bVE1-Z886k/edit), primera pestaña (`gid=0`). Si cambias de hoja o de pestaña, edita `SPREADSHEET_ID` y `SHEET_GID` al inicio de `Code.gs`.
 
 ### 1. Agregar el Apps Script
@@ -39,9 +51,9 @@ El script ya está configurado para tu hoja:
 2. En *Seleccionar tipo* (ícono de engranaje) elige **Aplicación web**.
 3. Configura:
    - **Ejecutar como:** Yo
-   - **Quién tiene acceso:** Cualquier persona
+   - **Quién tiene acceso:** Cualquier usuario (no "Cualquier usuario con cuenta de Google")
 4. Pulsa **Implementar** (si pide permisos de nuevo, autorízalos).
-5. Copia la **URL de la aplicación web** (termina en `/exec`).
+5. Copia la **URL de la aplicación web** (termina en `/exec`, con el botón **Copiar**). No uses el *ID de implementación* ni la URL de *Probar implementaciones*, que termina en `/dev`.
 
 > Si abres esa URL en el navegador, debe mostrar `{"result":"ok", ...}` y qué columna de tu hoja recibe cada campo del formulario.
 
@@ -52,7 +64,7 @@ Abre `index.html` con un editor de texto (Bloc de notas, VS Code), busca `SCRIPT
 var SCRIPT_URL = "https://script.google.com/macros/s/XXXXXXXX/exec";
 ```
 
-Guarda, vuelve a abrir la página, envía el formulario y revisa tu hoja.
+Guarda y sube el cambio al repositorio (o vuelve a abrir el archivo local). Envía el formulario y revisa tu hoja.
 
 ## Columnas de la hoja
 
@@ -90,7 +102,8 @@ Para que un encabezado tuyo se reconozca, agrégalo a `aliases` del campo en `FI
 
 | Síntoma | Causa probable |
 |---|---|
-| "No se pudo enviar" | URL mal copiada, o el acceso no está en *Cualquier persona* |
+| "No se pudo enviar" | URL mal copiada, o el acceso no está en *Cualquier usuario* |
+| La página publicada muestra la versión anterior | GitHub Pages tarda uno o dos minutos; recarga con `Ctrl + F5` |
 | Cambié `Code.gs` y no se nota | Falta publicar una **nueva versión** de la implementación |
 | Aparece una columna repetida al final | Tu encabezado tiene un nombre que el script no reconoce: agrégalo a `aliases` en `FIELDS` y borra la columna sobrante |
 | "No existe la pestaña con gid=…" | `SHEET_GID` no coincide con el número `gid=` de la URL de tu pestaña |
@@ -99,5 +112,6 @@ Para que un encabezado tuyo se reconozca, agrégalo a `aliases` del campo en `FI
 ## Seguridad
 
 - El script se ejecuta con tu cuenta, pero solo **agrega filas** a esta hoja. La URL `/exec` muestra el nombre de la hoja y de sus columnas, nunca los datos.
+- El repositorio es público: se ven el código, el ID de la hoja y la URL `/exec`. La hoja sigue privada; solo entra quien se invite desde **Compartir**. Con la URL `/exec` alguien podría agregar filas, pero no leerlas: si llega spam, bórralo o publica una implementación nueva y cambia `SCRIPT_URL`.
 - Incluye un campo oculto anti-spam (*honeypot*) y un bloqueo para envíos simultáneos.
 - Los valores que empiezan con `=`, `+`, `-` o `@` se guardan como texto para evitar inyección de fórmulas.

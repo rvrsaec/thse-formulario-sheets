@@ -320,7 +320,7 @@ footer .wrap { padding-block: 18px; display: flex; justify-content: space-betwee
       <ol class="steps">
         <li>Abre tu hoja y ve a <strong>Extensiones → Apps Script</strong>.</li>
         <li>Pega <code>Code.gs</code> y ejecuta <strong>probarConexion</strong> una vez.</li>
-        <li><strong>Implementar → Aplicación web</strong>, con acceso para <strong>Cualquier persona</strong>.</li>
+        <li><strong>Implementar → Aplicación web</strong>, con acceso para <strong>Cualquier usuario</strong>.</li>
         <li>Pega la URL <code>/exec</code> en <code>SCRIPT_URL</code>, dentro de este archivo.</li>
       </ol>
     </section>
@@ -468,7 +468,7 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxO-on9EZE5wZZt5D3jDKd
       })
       .catch(function (err) {
         console.error(err);
-        setStatus("No se pudo enviar. Revisa que SCRIPT_URL sea la URL /exec y que el acceso esté en «Cualquier persona».", "err");
+        setStatus("No se pudo enviar. Revisa que SCRIPT_URL sea la URL /exec y que el acceso esté en «Cualquier usuario».", "err");
       })
       .finally(function () { submitBtn.disabled = false; });
   });
