@@ -368,8 +368,8 @@ footer .wrap { padding-block: 22px; display: flex; justify-content: space-betwee
     </div>
 
     <div class="billing" role="group" aria-label="Forma de pago">
-      <button type="button" id="bill-year" data-billing="year" aria-pressed="true">Anual</button>
-      <button type="button" id="bill-once" data-billing="once" aria-pressed="false">Licencia única</button>
+      <button type="button" id="bill-year" data-billing="year" aria-pressed="true">Anual · ahorra hasta 33&nbsp;%</button>
+      <button type="button" id="bill-month" data-billing="month" aria-pressed="false">Mensual</button>
     </div>
 
     <div class="plans">
@@ -393,6 +393,7 @@ footer .wrap { padding-block: 22px; display: flex; justify-content: space-betwee
           <li>Looks None y Cinematic</li>
           <li>Tipos de archivo FLD e INT</li>
           <li>Ficha del registro en TXT</li>
+          <li>Biblioteca en el navegador, con respaldo JSON</li>
           <li>Línea «RECORDED WITH THSE» en el HUD</li>
         </ul>
         <a class="btn btn-ghost" href="#acceso" data-choose="Gratis">Empezar gratis</a>
@@ -405,8 +406,8 @@ footer .wrap { padding-block: 22px; display: flex; justify-content: space-betwee
           <h3>Personal</h3>
           <p class="plan-for">Para creadores y personas que documentan sus procesos.</p>
         </div>
-        <div class="price"><span class="price-amount" data-year="$24" data-once="$34">$24</span><span class="price-unit" data-year="/ año" data-once="una vez">/ año</span></div>
-        <p class="price-note" data-year="Equivale a $2 al mes" data-once="Licencia de por vida para tu versión">Equivale a $2 al mes</p>
+        <div class="price"><span class="price-amount" data-year="$24" data-month="$2,99">$24</span><span class="price-unit" data-year="/ año" data-month="/ mes">/ año</span></div>
+        <p class="price-note" data-year="≈ $2 al mes · ahorras 33&nbsp;%" data-month="O $24 al año y ahorras 33&nbsp;%">≈ $2 al mes · ahorras 33&nbsp;%</p>
         <dl class="specs">
           <dt>Registros</dt><dd>Ilimitados</dd>
           <dt>Exportación</dt><dd>1080p</dd>
@@ -421,6 +422,7 @@ footer .wrap { padding-block: 22px; display: flex; justify-content: space-betwee
           <li>Los 4 tipos de archivo: FLD, LAB, INT y ARCH</li>
           <li>Ficha del registro en PDF, TXT y JSON</li>
           <li>Plantillas desde un registro existente</li>
+          <li>Biblioteca en tu propia carpeta: disco, USB o tu nube</li>
         </ul>
         <a class="btn" href="#acceso" data-choose="Personal">Elegir Personal</a>
       </article>
@@ -431,8 +433,8 @@ footer .wrap { padding-block: 22px; display: flex; justify-content: space-betwee
           <h3>Pro</h3>
           <p class="plan-for">Para profesionales que entregan registros con respaldo documental.</p>
         </div>
-        <div class="price"><span class="price-amount" data-year="$59" data-once="$89">$59</span><span class="price-unit" data-year="/ año" data-once="una vez">/ año</span></div>
-        <p class="price-note" data-year="Equivale a $4,90 al mes" data-once="Licencia de por vida para tu versión">Equivale a $4,90 al mes</p>
+        <div class="price"><span class="price-amount" data-year="$59" data-month="$6,99">$59</span><span class="price-unit" data-year="/ año" data-month="/ mes">/ año</span></div>
+        <p class="price-note" data-year="≈ $4,92 al mes · ahorras 30&nbsp;%" data-month="O $59 al año y ahorras 30&nbsp;%">≈ $4,92 al mes · ahorras 30&nbsp;%</p>
         <dl class="specs">
           <dt>Registros</dt><dd>Ilimitados</dd>
           <dt>Exportación</dt><dd>1080p</dd>
@@ -459,8 +461,8 @@ footer .wrap { padding-block: 22px; display: flex; justify-content: space-betwee
           <h3>Estudio</h3>
           <p class="plan-for">Para equipos, escuelas y laboratorios que comparten un equipo.</p>
         </div>
-        <div class="price"><span class="price-amount" data-year="$149" data-once="$229">$149</span><span class="price-unit" data-year="/ año" data-once="una vez">/ año</span></div>
-        <p class="price-note" data-year="Hasta 5 personas" data-once="Hasta 5 personas">Hasta 5 personas</p>
+        <div class="price"><span class="price-amount" data-year="$175" data-month="$19,99">$175</span><span class="price-unit" data-year="/ año" data-month="/ mes">/ año</span></div>
+        <p class="price-note" data-year="≈ $14,58 al mes · ahorras 27&nbsp;% · hasta 5 personas" data-month="O $175 al año y ahorras 27&nbsp;% · hasta 5 personas">≈ $14,58 al mes · ahorras 27&nbsp;% · hasta 5 personas</p>
         <dl class="specs">
           <dt>Registros</dt><dd>Ilimitados</dd>
           <dt>Exportación</dt><dd>1080p</dd>
@@ -479,7 +481,7 @@ footer .wrap { padding-block: 22px; display: flex; justify-content: space-betwee
       </article>
     </div>
 
-    <div class="founder"><b>Licencia Fundador</b> Condiciones especiales para las primeras 100 licencias del lanzamiento.</div>
+    <div class="founder"><b>Licencia Fundador</b> Condiciones especiales para las primeras 100 suscripciones del lanzamiento.</div>
     <p class="plans-foot">Precios de referencia en USD, sujetos a cambios antes del lanzamiento. Habrá precios regionales para Latinoamérica. Lo marcado como «Pronto» está en desarrollo y se activa en tu plan cuando esté listo.</p>
   </div>
 </section>
@@ -513,10 +515,11 @@ footer .wrap { padding-block: 22px; display: flex; justify-content: space-betwee
           <tr><td>Catálogo de la biblioteca en PDF</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td></tr>
           <tr><td>Acciones en lote</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td></tr>
           <tr><td>Huella de integridad SHA-256</td><td class="no">—</td><td class="no">—</td><td class="soon">Pronto</td><td class="soon">Pronto</td></tr>
+          <tr><td>Biblioteca en tu propia carpeta (disco, USB o tu nube)</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
           <tr><td>Respaldo JSON y recordatorios</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
           <tr><td>Papelera</td><td>3 días</td><td>14 días</td><td>30 días</td><td>30 días</td></tr>
           <tr><th colspan="5" scope="colgroup">Equipo</th></tr>
-          <tr><td>Equipos por licencia</td><td>1</td><td>3</td><td>5</td><td>5</td></tr>
+          <tr><td>Equipos por suscripción</td><td>1</td><td>3</td><td>5</td><td>5</td></tr>
           <tr><td>Usuarios con biblioteca propia</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="soon">Pronto · 5</td></tr>
           <tr><td>Compilar un proyecto en un video</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="soon">Pronto</td></tr>
           <tr><td>Soporte</td><td>Comunidad</td><td>Correo</td><td>Correo</td><td>Prioritario</td></tr>
@@ -535,19 +538,23 @@ footer .wrap { padding-block: 22px; display: flex; justify-content: space-betwee
     <div class="faq">
       <details>
         <summary>¿Mis videos se suben a algún servidor?</summary>
-        <p>No. THSE Recorder procesa el video en tu navegador y guarda la biblioteca en tu equipo. Esto vale para todos los planes.</p>
+        <p>No. THSE Recorder procesa el video en tu navegador y guarda la biblioteca en tu equipo: en el navegador (plan Gratis) o en tu propia carpeta, en tu disco, USB o tu nube (planes pagos). Nunca en nuestros servidores.</p>
       </details>
       <details>
         <summary>¿Qué pasa con mis registros si cambio de plan?</summary>
-        <p>Se mantienen. Si bajas de plan, conservas tus registros y respaldos; solo cambian las funciones disponibles para lo nuevo que crees.</p>
+        <p>Se mantienen siempre. Si bajas de plan, todo lo que creaste sigue visible y puedes respaldarlo; lo nuevo que crees usa las funciones de tu plan actual.</p>
       </details>
       <details>
         <summary>¿Qué necesito para usarlo?</summary>
         <p>Un computador con Google Chrome o Microsoft Edge. La versión para celular está en estudio; por ahora, pasa el video al computador.</p>
       </details>
       <details>
-        <summary>¿Anual o licencia única?</summary>
-        <p>Con el pago anual recibes todas las actualizaciones mientras esté activo. La licencia única es para siempre y se usa sin conexión a una cuenta.</p>
+        <summary>¿Mensual o anual?</summary>
+        <p>Los dos incluyen todas las funciones y actualizaciones de tu plan. Con el pago anual pagas una vez al año y ahorras hasta 33&nbsp;%.</p>
+      </details>
+      <details>
+        <summary>¿Qué pasa si mi suscripción vence?</summary>
+        <p>Nada se borra ni se oculta. Lo que creaste con tu plan sigue visible: puedes verlo, reproducirlo y respaldarlo, pero queda en modo lectura hasta que renueves. Puedes seguir agregando registros a tus proyectos con las funciones del plan Gratis. Al renovar, todo se desbloquea al instante.</p>
       </details>
       <details>
         <summary>¿Qué significa «Pronto»?</summary>
@@ -684,7 +691,7 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxO-on9EZE5wZZt5D3jDKd
   document.getElementById("hud-date").textContent = now.toLocaleDateString("es", { day: "2-digit", month: "short", year: "numeric" }).replace(/\./g, "").toUpperCase();
   document.getElementById("year").textContent = now.getFullYear();
 
-  // Selector Anual / Licencia única
+  // Selector Anual / Mensual
   var billingButtons = document.querySelectorAll("[data-billing]");
   Array.prototype.forEach.call(billingButtons, function (btn) {
     btn.addEventListener("click", function () {

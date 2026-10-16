@@ -21,12 +21,14 @@ Navegador (index.html)  ──POST──▶  Apps Script (/exec)  ──▶  Goo
 
 Cuatro niveles; cada uno suma lo anterior. Basados en las funciones ya implementadas en THSE Recorder Internal v1 y en el borrador comercial de `docs/ROADMAP.md` (repositorio de la app). Precios de referencia en USD.
 
-| Nivel | Para quién | Anual | Licencia única | Lo principal |
+| Nivel | Para quién | Mensual | Anual | Lo principal |
 |---|---|---|---|---|
-| **Gratis** | Probar con los primeros registros | $0 | $0 | 10 registros · 720p · formatos Original, 16:9, 9:16 · Looks None y Cinematic · FLD e INT · ficha TXT · línea «RECORDED WITH THSE» en el HUD · papelera 3 días · 1 equipo |
-| **Personal** (recomendado) | Creadores y documentación de procesos | $24 | $34 | Sin marca · registros ilimitados · 1080p · 7 formatos · fondo difuminado y barras · los 5 Looks · los 4 tipos de archivo · ficha PDF/TXT/JSON · plantillas · papelera 14 días · 3 equipos |
-| **Pro** | Profesionales con respaldo documental | $59 | $89 | Tipos de archivo propios · catálogo PDF · acciones en lote · papelera 30 días · 5 equipos · *pronto:* logo propio en el HUD, campos personalizados, huella SHA-256 |
-| **Estudio** (lista de espera) | Equipos, escuelas y laboratorios | $149 | $229 | Hasta 5 personas · licencias para grupos · soporte prioritario · *pronto:* usuarios con biblioteca propia, perfiles de uso, compilar un proyecto |
+| **Gratis** | Probar con los primeros registros | $0 | $0 | 10 registros · 720p · formatos Original, 16:9, 9:16 · Looks None y Cinematic · FLD e INT · ficha TXT · biblioteca en el navegador con respaldo JSON · línea «RECORDED WITH THSE» en el HUD · papelera 3 días · 1 equipo |
+| **Personal** (recomendado) | Creadores y documentación de procesos | $2,99 | $24 (ahorra 33 %) | Sin marca · registros ilimitados · 1080p · 7 formatos · fondo difuminado y barras · los 5 Looks · los 4 tipos de archivo · ficha PDF/TXT/JSON · plantillas · biblioteca en tu propia carpeta (disco, USB o tu nube) · papelera 14 días · 3 equipos |
+| **Pro** | Profesionales con respaldo documental | $6,99 | $59 (ahorra 30 %) | Tipos de archivo propios · catálogo PDF · acciones en lote · papelera 30 días · 5 equipos · *pronto:* logo propio en el HUD, campos personalizados, huella SHA-256 |
+| **Estudio** (lista de espera) | Equipos, escuelas y laboratorios | $19,99 | $175 (ahorra 27 %) | Hasta 5 personas · licencias para grupos · soporte prioritario · *pronto:* usuarios con biblioteca propia, perfiles de uso, compilar un proyecto |
+
+Solo suscripción, mensual o anual (el anual se destaca por defecto). Si la suscripción vence, nada se borra ni se oculta: lo creado queda en modo lectura hasta renovar, y se pueden seguir agregando registros a los proyectos con las funciones del plan Gratis.
 
 En todos los planes: proceso local (los videos nunca se suben), registro con código `CODE-AAAAMMDD-NNN`, respaldo JSON con recordatorios y papelera.
 
